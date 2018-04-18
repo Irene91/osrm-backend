@@ -1,4 +1,4 @@
-@matrix @testbot @ch
+@matrix @testbot
 Feature: Basic Distance Matrix
 # note that results of travel distance are in metres
 
@@ -21,6 +21,7 @@ Feature: Basic Distance Matrix
             | a | 0   | 100 |
             | b | 100 | 0   |
 
+    @ch
     Scenario: Testbot - Travel distance matrix of minimal network with toll exclude
         Given the query options
             | exclude  | toll        |
@@ -45,6 +46,7 @@ Feature: Basic Distance Matrix
             | c |     |     | 0   | 100 |
             | d |     |     | 100 | 0   |
 
+    @ch
     Scenario: Testbot - Travel distance matrix of minimal network with motorway exclude
         Given the query options
             | exclude  | motorway  |
@@ -66,7 +68,7 @@ Feature: Basic Distance Matrix
             |   | a | b   | c   | d   |
             | a | 0 | 300 | 100 | 200 |
 
-
+       @ch
        Scenario: Testbot - Travel distance matrix of minimal network disconnected motorway exclude
         Given the query options
             | exclude  | motorway  |
@@ -89,6 +91,7 @@ Feature: Basic Distance Matrix
             | a | 0 | 50 |   |
 
 
+    @ch
     Scenario: Testbot - Travel distance matrix of minimal network with motorway and toll excludes
         Given the query options
             | exclude  | motorway,toll  |
@@ -110,6 +113,7 @@ Feature: Basic Distance Matrix
             |   | a | b   | e | g |
             | a | 0 | 100 |   |   |
 
+    @ch
     Scenario: Testbot - Travel distance matrix with different way speeds
         Given the node map
             """
@@ -140,6 +144,7 @@ Feature: Basic Distance Matrix
             | c | 200   |
             | d | 299.9 |
 
+    @ch
     Scenario: Testbot - Travel distance matrix of small grid
         Given the node map
             """
@@ -162,6 +167,7 @@ Feature: Basic Distance Matrix
             | e | 200   | 100 | 0   | 100   |
             | f | 299.9 | 200 | 100 | 0     |
 
+    @ch
     Scenario: Testbot - Travel distance matrix of network with unroutable parts
         Given the node map
             """
@@ -177,6 +183,7 @@ Feature: Basic Distance Matrix
             | a | 0 | 100 |
             | b |   | 0   |
 
+    @ch
     Scenario: Testbot - Travel distance matrix of network with oneways
         Given the node map
             """
@@ -197,6 +204,7 @@ Feature: Basic Distance Matrix
             | d | 200   | 299.9 | 0     | 300   |
             | e | 299.9 | 399.9 | 100   | 0     |
 
+    @ch
     Scenario: Testbot - Rectangular travel distance matrix
         Given the node map
             """
@@ -256,6 +264,7 @@ Feature: Basic Distance Matrix
             | f | 299.9 | 200 | 100 | 0     |
 
 
+     @ch
      Scenario: Testbot - Travel distance 3x2 matrix
         Given the node map
             """
@@ -277,6 +286,7 @@ Feature: Basic Distance Matrix
             | a | 100 | 200 | 299.9 |
             | b | 0   | 100 | 200   |
 
+    @ch
     Scenario: Testbot - All coordinates are from same small component
         Given a grid size of 300 meters
         Given the extract extra arguments "--small-component-size 4"
@@ -299,6 +309,7 @@ Feature: Basic Distance Matrix
             | f | 0   | 300 |
             | g | 300 | 0   |
 
+    @ch
     Scenario: Testbot - Coordinates are from different small component and snap to big CC
         Given a grid size of 300 meters
         Given the extract extra arguments "--small-component-size 4"
@@ -335,6 +346,7 @@ Feature: Basic Distance Matrix
             | h | 0   | 300 | 0   | 300 |
             | i | 300 | 0   | 300 | 0   |
 
+    @ch
     Scenario: Testbot - Travel distance matrix with loops
         Given the node map
             """
@@ -356,7 +368,7 @@ Feature: Basic Distance Matrix
             | 3 | 399.9 | 499.9 | 0     | 100   |
             | 4 | 299.9 | 399.9 | 699.9 | 0     |
 
-
+    @ch
     Scenario: Testbot - Travel distance matrix based on segment durations
         Given the profile file
         """
@@ -398,6 +410,7 @@ Feature: Basic Distance Matrix
             | d | 299.9 | 200 | 100 | 0     | 300   |
             | e | 399.9 | 300 | 200 | 300   | 0     |
 
+    @ch
     Scenario: Testbot - Travel distance matrix for alternative loop paths
         Given the profile file
         """
@@ -445,6 +458,7 @@ Feature: Basic Distance Matrix
             | 7 | 299.9 | 200    | 599.9 | 499.9  | 899.9 | 799.9  | 0     | 1099.8 |
             | 8 | 399.9 | 300    | 699.9 | 599.9  | 999.8 | 899.9  | 100   | 0      |
 
+    @ch
     Scenario: Testbot - Travel distance matrix with ties
         Given the node map
             """
