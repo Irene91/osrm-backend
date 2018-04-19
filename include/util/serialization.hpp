@@ -56,10 +56,10 @@ inline void write(storage::tar::FileWriter &writer,
     storage::serialization::write(writer, name + "/packed", vec.vec);
 }
 
-template <typename EdgeDataT, storage::Ownership Ownership>
+template <typename NodeDataT, typename EdgeDataT, storage::Ownership Ownership>
 inline void read(storage::tar::FileReader &reader,
                  const std::string &name,
-                 StaticGraph<EdgeDataT, Ownership> &graph)
+                 StaticGraph<NodeDataT, EdgeDataT, Ownership> &graph)
 {
     storage::serialization::read(reader, name + "/node_array", graph.node_array);
     storage::serialization::read(reader, name + "/edge_array", graph.edge_array);
@@ -67,10 +67,10 @@ inline void read(storage::tar::FileReader &reader,
     graph.number_of_edges = graph.edge_array.size();
 }
 
-template <typename EdgeDataT, storage::Ownership Ownership>
+template <typename NodeDataT, typename EdgeDataT, storage::Ownership Ownership>
 inline void write(storage::tar::FileWriter &writer,
                   const std::string &name,
-                  const StaticGraph<EdgeDataT, Ownership> &graph)
+                  const StaticGraph<NodeDataT, EdgeDataT, Ownership> &graph)
 {
     storage::serialization::write(writer, name + "/node_array", graph.node_array);
     storage::serialization::write(writer, name + "/edge_array", graph.edge_array);

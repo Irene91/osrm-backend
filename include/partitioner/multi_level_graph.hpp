@@ -35,10 +35,10 @@ void write(storage::tar::FileWriter &writer,
 }
 
 template <typename EdgeDataT, storage::Ownership Ownership>
-class MultiLevelGraph : public util::StaticGraph<EdgeDataT, Ownership>
+class MultiLevelGraph : public util::StaticGraph<void, EdgeDataT, Ownership>
 {
   private:
-    using SuperT = util::StaticGraph<EdgeDataT, Ownership>;
+    using SuperT = util::StaticGraph<void, EdgeDataT, Ownership>;
     template <typename T> using Vector = util::ViewOrVector<T, Ownership>;
 
   public:

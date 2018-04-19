@@ -23,19 +23,19 @@ namespace osrm
 {
 namespace util
 {
-template <typename EdgeDataT, storage::Ownership Ownership> class StaticGraph;
+template <typename NodeDataT, typename EdgeDataT, storage::Ownership Ownership> class StaticGraph;
 
 namespace serialization
 {
-template <typename EdgeDataT, storage::Ownership Ownership>
+template <typename NodeDataT, typename EdgeDataT, storage::Ownership Ownership>
 void read(storage::tar::FileReader &reader,
           const std::string &name,
-          StaticGraph<EdgeDataT, Ownership> &graph);
+          StaticGraph<NodeDataT, EdgeDataT, Ownership> &graph);
 
-template <typename EdgeDataT, storage::Ownership Ownership>
+template <typename NodeDataT, typename EdgeDataT, storage::Ownership Ownership>
 void write(storage::tar::FileWriter &writer,
            const std::string &name,
-           const StaticGraph<EdgeDataT, Ownership> &graph);
+           const StaticGraph<NodeDataT, EdgeDataT, Ownership> &graph);
 }
 
 namespace static_graph_details
@@ -44,7 +44,16 @@ namespace static_graph_details
 using NodeIterator = NodeID;
 using EdgeIterator = NodeID;
 
-struct NodeArrayEntry
+template <typename NodeDataT> struct NodeArrayEntry;
+
+template <typename NodeDataT> struct NodeArrayEntry
+{
+    // index of the first edge
+    EdgeIterator first_edge;
+    NodeDataT data;
+};
+
+template <> struct NodeArrayEntry<void>
 {
     // index of the first edge
     EdgeIterator first_edge;
@@ -115,7 +124,9 @@ EntryT edgeToEntry(const OtherEdge &from, std::false_type)
 
 } // namespace static_graph_details
 
-template <typename EdgeDataT, storage::Ownership Ownership = storage::Ownership::Container>
+template <typename NodeDataT,
+          typename EdgeDataT,
+          storage::Ownership Ownership = storage::Ownership::Container>
 class StaticGraph
 {
     template <typename T> using Vector = util::ViewOrVector<T, Ownership>;
@@ -125,7 +136,7 @@ class StaticGraph
     using NodeIterator = static_graph_details::NodeIterator;
     using EdgeIterator = static_graph_details::EdgeIterator;
     using EdgeRange = range<EdgeIterator>;
-    using NodeArrayEntry = static_graph_details::NodeArrayEntry;
+    using NodeArrayEntry = static_graph_details::NodeArrayEntry<NodeDataT>;
     using EdgeArrayEntry = static_graph_details::EdgeArrayEntry<EdgeDataT>;
 
     EdgeRange GetAdjacentEdgeRange(const NodeID node) const
@@ -276,13 +287,14 @@ class StaticGraph
         util::inplacePermutation(edge_array.begin(), edge_array.end(), old_to_new_edge);
     }
 
-    friend void serialization::read<EdgeDataT, Ownership>(storage::tar::FileReader &reader,
-                                                          const std::string &name,
-                                                          StaticGraph<EdgeDataT, Ownership> &graph);
-    friend void
-    serialization::write<EdgeDataT, Ownership>(storage::tar::FileWriter &writer,
-                                               const std::string &name,
-                                               const StaticGraph<EdgeDataT, Ownership> &graph);
+    friend void serialization::read<NodeDataT, EdgeDataT, Ownership>(
+        storage::tar::FileReader &reader,
+        const std::string &name,
+        StaticGraph<NodeDataT, EdgeDataT, Ownership> &graph);
+    friend void serialization::write<NodeDataT, EdgeDataT, Ownership>(
+        storage::tar::FileWriter &writer,
+        const std::string &name,
+        const StaticGraph<NodeDataT, EdgeDataT, Ownership> &graph);
 
   protected:
     template <typename IterT>

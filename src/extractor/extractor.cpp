@@ -657,7 +657,7 @@ void Extractor::FindComponents(unsigned number_of_edge_based_nodes,
                                EdgeBasedNodeDataContainer &nodes_container) const
 {
     using InputEdge = util::static_graph_details::SortableEdgeWithData<void>;
-    using UncontractedGraph = util::StaticGraph<void>;
+    using UncontractedGraph = util::StaticGraph<void, void>;
     std::vector<InputEdge> edges;
     edges.reserve(input_edge_list.size() * 2);
 

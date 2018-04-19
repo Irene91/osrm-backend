@@ -27,8 +27,8 @@ inline void renumber(util::DynamicGraph<EdgeDataT> &graph,
     graph.Renumber(permutation);
 }
 
-template <typename EdgeDataT>
-inline void renumber(util::StaticGraph<EdgeDataT> &graph,
+template <typename NodeDataT, typename EdgeDataT>
+inline void renumber(util::StaticGraph<NodeDataT, EdgeDataT> &graph,
                      const std::vector<std::uint32_t> &permutation)
 {
     // static graph has own specilization

@@ -42,7 +42,7 @@ auto makeGraph(const std::vector<MockEdge> &mock_edges)
         edges.push_back(Edge{m.target, m.start, false, true});
     }
     std::sort(edges.begin(), edges.end());
-    return util::StaticGraph<EdgeData>(max_id + 1, edges);
+    return util::StaticGraph<void, EdgeData>(max_id + 1, edges);
 }
 }
 

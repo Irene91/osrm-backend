@@ -30,7 +30,7 @@ namespace osrm
 namespace tools
 {
 
-using TarjanGraph = util::StaticGraph<void>;
+using TarjanGraph = util::StaticGraph<void, void>;
 using TarjanEdge = util::static_graph_details::SortableEdgeWithData<void>;
 
 std::size_t loadGraph(const std::string &path,

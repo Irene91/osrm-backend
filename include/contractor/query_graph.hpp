@@ -14,7 +14,7 @@ namespace contractor
 namespace detail
 {
 template <storage::Ownership Ownership>
-using QueryGraph = util::StaticGraph<typename QueryEdge::EdgeData, Ownership>;
+using QueryGraph = util::StaticGraph<void, typename QueryEdge::EdgeData, Ownership>;
 }
 
 using QueryGraph = detail::QueryGraph<storage::Ownership::Container>;

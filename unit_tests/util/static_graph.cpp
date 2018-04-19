@@ -18,7 +18,7 @@ struct TestData
     EdgeID id;
 };
 
-typedef StaticGraph<TestData> TestStaticGraph;
+typedef StaticGraph<void, TestData> TestStaticGraph;
 typedef TestStaticGraph::NodeArrayEntry TestNodeArrayEntry;
 typedef TestStaticGraph::EdgeArrayEntry TestEdgeArrayEntry;
 typedef static_graph_details::SortableEdgeWithData<TestData> TestInputEdge;

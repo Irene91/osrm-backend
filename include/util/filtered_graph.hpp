@@ -20,12 +20,12 @@ template <typename GraphT, storage::Ownership Ownership> class FilteredGraphImpl
 // we don't modify the structure of the graph. This also makes it easy to
 // swap out the filter.
 template <typename EdgeDataT, storage::Ownership Ownership>
-class FilteredGraphImpl<util::StaticGraph<EdgeDataT, Ownership>, Ownership>
+class FilteredGraphImpl<util::StaticGraph<void, EdgeDataT, Ownership>, Ownership>
 {
     template <typename T> using Vector = util::ViewOrVector<T, Ownership>;
 
   public:
-    using Graph = util::StaticGraph<EdgeDataT, Ownership>;
+    using Graph = util::StaticGraph<void, EdgeDataT, Ownership>;
     using EdgeIterator = typename Graph::EdgeIterator;
     using NodeIterator = typename Graph::NodeIterator;
     using NodeArrayEntry = typename Graph::NodeArrayEntry;
