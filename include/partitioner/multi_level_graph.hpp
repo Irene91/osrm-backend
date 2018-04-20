@@ -19,26 +19,26 @@ namespace osrm
 
 namespace partitioner
 {
-template <typename EdgeDataT, storage::Ownership Ownership> class MultiLevelGraph;
+template <typename NodeDataT, typename EdgeDataT, storage::Ownership Ownership> class MultiLevelGraph;
 
 namespace serialization
 {
-template <typename EdgeDataT, storage::Ownership Ownership>
+template <typename NodeDataT, typename EdgeDataT, storage::Ownership Ownership>
 void read(storage::tar::FileReader &reader,
           const std::string &name,
-          MultiLevelGraph<EdgeDataT, Ownership> &graph);
+          MultiLevelGraph<NodeDataT, EdgeDataT, Ownership> &graph);
 
-template <typename EdgeDataT, storage::Ownership Ownership>
+template <typename NodeDataT, typename EdgeDataT, storage::Ownership Ownership>
 void write(storage::tar::FileWriter &writer,
            const std::string &name,
-           const MultiLevelGraph<EdgeDataT, Ownership> &graph);
+           const MultiLevelGraph<NodeDataT, EdgeDataT, Ownership> &graph);
 }
 
-template <typename EdgeDataT, storage::Ownership Ownership>
-class MultiLevelGraph : public util::StaticGraph<void, EdgeDataT, Ownership>
+template <typename NodeDataT, typename EdgeDataT, storage::Ownership Ownership>
+class MultiLevelGraph : public util::StaticGraph<NodeDataT, EdgeDataT, Ownership>
 {
   private:
-    using SuperT = util::StaticGraph<void, EdgeDataT, Ownership>;
+    using SuperT = util::StaticGraph<NodeDataT, EdgeDataT, Ownership>;
     template <typename T> using Vector = util::ViewOrVector<T, Ownership>;
 
   public:
@@ -210,13 +210,13 @@ class MultiLevelGraph : public util::StaticGraph<void, EdgeDataT, Ownership>
     }
 
     friend void
-    serialization::read<EdgeDataT, Ownership>(storage::tar::FileReader &reader,
+    serialization::read<NodeDataT, EdgeDataT, Ownership>(storage::tar::FileReader &reader,
                                               const std::string &name,
-                                              MultiLevelGraph<EdgeDataT, Ownership> &graph);
+                                              MultiLevelGraph<NodeDataT, EdgeDataT, Ownership> &graph);
     friend void
-    serialization::write<EdgeDataT, Ownership>(storage::tar::FileWriter &writer,
+    serialization::write<NodeDataT, EdgeDataT, Ownership>(storage::tar::FileWriter &writer,
                                                const std::string &name,
-                                               const MultiLevelGraph<EdgeDataT, Ownership> &graph);
+                                               const MultiLevelGraph<NodeDataT, EdgeDataT, Ownership> &graph);
 
     Vector<EdgeOffset> node_to_edge_offset;
     std::uint32_t connectivity_checksum;
