@@ -526,30 +526,29 @@ updateConditionalTurns(std::vector<TurnPenalty> &turn_weight_penalties,
 }
 }
 
-Updater::NumNodesAndEdges Updater::LoadAndUpdateEdgeExpandedGraph() const
+Updater::NodesAndEdges Updater::LoadAndUpdateEdgeExpandedGraph() const
 {
-    std::vector<EdgeWeight> node_weights;
+    std::vector<extractor::EdgeBasedNodeData> edge_based_node_list;
     std::vector<extractor::EdgeBasedEdge> edge_based_edge_list;
     std::uint32_t connectivity_checksum;
-    auto number_of_edge_based_nodes = Updater::LoadAndUpdateEdgeExpandedGraph(
-        edge_based_edge_list, node_weights, connectivity_checksum);
+    Updater::LoadAndUpdateEdgeExpandedGraph(
+       edge_based_node_list, edge_based_edge_list, connectivity_checksum);
     return std::make_tuple(
-        number_of_edge_based_nodes, std::move(edge_based_edge_list), connectivity_checksum);
+                           std::move(edge_based_node_list), std::move(edge_based_edge_list), connectivity_checksum);
 }
 
-EdgeID
-Updater::LoadAndUpdateEdgeExpandedGraph(std::vector<extractor::EdgeBasedEdge> &edge_based_edge_list,
-                                        std::vector<EdgeWeight> &node_weights,
+void
+Updater::LoadAndUpdateEdgeExpandedGraph(std::vector<extractor::EdgeBasedNodeData> &edge_based_node_list,
+                                        std::vector<extractor::EdgeBasedEdge> &edge_based_edge_list,
                                         std::uint32_t &connectivity_checksum) const
 {
     TIMER_START(load_edges);
 
-    EdgeID number_of_edge_based_nodes = 0;
     std::vector<util::Coordinate> coordinates;
     extractor::PackedOSMIDs osm_node_ids;
 
     extractor::files::readEdgeBasedGraph(config.GetPath(".osrm.ebg"),
-                                         number_of_edge_based_nodes,
+                                         edge_based_node_list,
                                          edge_based_edge_list,
                                          connectivity_checksum);
     extractor::files::readNodes(config.GetPath(".osrm.nbg_nodes"), coordinates, osm_node_ids);
@@ -562,7 +561,7 @@ Updater::LoadAndUpdateEdgeExpandedGraph(std::vector<extractor::EdgeBasedEdge> &e
     if (!update_edge_weights && !update_turn_penalties && !update_conditional_turns)
     {
         saveDatasourcesNames(config);
-        return number_of_edge_based_nodes;
+        return;
     }
 
     if (config.segment_speed_lookup_paths.size() + config.turn_penalty_lookup_paths.size() > 255)
@@ -737,31 +736,15 @@ Updater::LoadAndUpdateEdgeExpandedGraph(std::vector<extractor::EdgeBasedEdge> &e
         {
             // Find a segment with zero speed and simultaneously compute the new edge
             // weight
-            EdgeWeight new_weight;
-            EdgeWeight new_duration;
+            EdgeWeight new_weight, new_duration;
             std::tie(new_weight, new_duration) =
                 accumulated_segment_data[updated_iter - updated_segments.begin()];
 
-            // Update the node-weight cache. This is the weight of the edge-based-node
-            // only,
-            // it doesn't include the turn. We may visit the same node multiple times,
-            // but
-            // we should always assign the same value here.
-            if (node_weights.size() > 0)
-                node_weights[edge.source] = new_weight;
-
-            // We found a zero-speed edge, so we'll skip this whole edge-based-edge
-            // which
-            // effectively removes it from the routing network.
-            if (new_weight == INVALID_EDGE_WEIGHT)
-            {
-                edge.data.weight = INVALID_EDGE_WEIGHT;
-                return;
-            }
+            edge_based_node_list[edge.source].weight = new_weight;
+            edge_based_node_list[edge.source].duration = new_duration;
 
             // Get the turn penalty and update to the new value if required
             auto turn_weight_penalty = turn_weight_penalties[edge.data.turn_id];
-            auto turn_duration_penalty = turn_duration_penalties[edge.data.turn_id];
             const auto num_nodes = segment_data.GetForwardGeometry(geometry_id.id).size();
             const auto weight_min_value = static_cast<EdgeWeight>(num_nodes);
             if (turn_weight_penalty + new_weight < weight_min_value)
@@ -771,18 +754,11 @@ Updater::LoadAndUpdateEdgeExpandedGraph(std::vector<extractor::EdgeBasedEdge> &e
                     util::Log(logWARNING) << "turn penalty " << turn_weight_penalty
                                           << " is too negative: clamping turn weight to "
                                           << weight_min_value;
-                    turn_weight_penalty = weight_min_value - new_weight;
-                    turn_weight_penalties[edge.data.turn_id] = turn_weight_penalty;
                 }
-                else
-                {
-                    new_weight = weight_min_value;
-                }
-            }
 
-            // Update edge weight
-            edge.data.weight = new_weight + turn_weight_penalty;
-            edge.data.duration = new_duration + turn_duration_penalty;
+                turn_weight_penalty = weight_min_value - new_weight;
+                turn_weight_penalties[edge.data.turn_id] = turn_weight_penalty;
+            }
         }
     };
 
@@ -822,7 +798,6 @@ Updater::LoadAndUpdateEdgeExpandedGraph(std::vector<extractor::EdgeBasedEdge> &e
 
     TIMER_STOP(load_edges);
     util::Log() << "Done reading edges in " << TIMER_MSEC(load_edges) << "ms.";
-    return number_of_edge_based_nodes;
 }
 }
 }

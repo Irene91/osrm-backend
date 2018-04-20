@@ -10,28 +10,37 @@ namespace osrm
 namespace extractor
 {
 
+struct EdgeBasedNodeData
+{
+    EdgeBasedNodeData() : weight(0), duration(0) {}
+
+    EdgeBasedNodeData(const EdgeWeight weight,
+                      const EdgeDuration duration)
+        : weight(weight), duration(duration)
+    {
+    }
+
+    EdgeWeight weight;
+    EdgeDuration duration;
+};
+
 struct EdgeBasedEdge
 {
   public:
     struct EdgeData
     {
-        EdgeData() : turn_id(0), weight(0), duration(0), forward(false), backward(false) {}
+        EdgeData() : turn_id(0), forward(false), backward(false) {}
 
         EdgeData(const NodeID turn_id,
-                 const EdgeWeight weight,
-                 const EdgeWeight duration,
                  const bool forward,
                  const bool backward)
-            : turn_id(turn_id), weight(weight), duration(duration), forward(forward),
-              backward(backward)
+            : turn_id(turn_id), forward(forward), backward(backward)
         {
         }
 
         NodeID turn_id; // ID of the edge based node (node based edge)
-        EdgeWeight weight;
-        EdgeWeight duration : 30;
-        std::uint32_t forward : 1;
-        std::uint32_t backward : 1;
+        std::uint8_t forward : 1;
+        std::uint8_t backward : 1;
 
         auto is_unidirectional() const { return !forward || !backward; }
     };
@@ -41,8 +50,6 @@ struct EdgeBasedEdge
     EdgeBasedEdge(const NodeID source,
                   const NodeID target,
                   const NodeID edge_id,
-                  const EdgeWeight weight,
-                  const EdgeWeight duration,
                   const bool forward,
                   const bool backward);
     EdgeBasedEdge(const NodeID source, const NodeID target, const EdgeBasedEdge::EdgeData &data);
@@ -53,7 +60,7 @@ struct EdgeBasedEdge
     NodeID target;
     EdgeData data;
 };
-static_assert(sizeof(extractor::EdgeBasedEdge) == 20,
+static_assert(sizeof(extractor::EdgeBasedEdge) == 16,
               "Size of extractor::EdgeBasedEdge type is "
               "bigger than expected. This will influence "
               "memory consumption.");
@@ -65,11 +72,9 @@ inline EdgeBasedEdge::EdgeBasedEdge() : source(0), target(0) {}
 inline EdgeBasedEdge::EdgeBasedEdge(const NodeID source,
                                     const NodeID target,
                                     const NodeID turn_id,
-                                    const EdgeWeight weight,
-                                    const EdgeWeight duration,
                                     const bool forward,
                                     const bool backward)
-    : source(source), target(target), data{turn_id, weight, duration, forward, backward}
+    : source(source), target(target), data{turn_id, forward, backward}
 {
 }
 
@@ -86,8 +91,8 @@ inline bool EdgeBasedEdge::operator<(const EdgeBasedEdge &other) const
     const auto other_is_unidirectional = other.data.is_unidirectional();
     // if all items are the same, we want to keep bidirectional edges. due to the `<` operator,
     // preferring 0 (false) over 1 (true), we need to compare the inverse of `bidirectional`
-    return std::tie(source, target, data.weight, unidirectional) <
-           std::tie(other.source, other.target, other.data.weight, other_is_unidirectional);
+    return std::tie(source, target, unidirectional) <
+           std::tie(other.source, other.target, other_is_unidirectional);
 }
 } // ns extractor
 } // ns osrm

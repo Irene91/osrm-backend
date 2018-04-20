@@ -79,7 +79,7 @@ inline void writeProfileProperties(const boost::filesystem::path &path,
 
 template <typename EdgeBasedEdgeVector>
 void writeEdgeBasedGraph(const boost::filesystem::path &path,
-                         EdgeID const number_of_edge_based_nodes,
+                         const std::vector<extractor::EdgeBasedNodeData> &edge_based_node_list,
                          const EdgeBasedEdgeVector &edge_based_edge_list,
                          const std::uint32_t connectivity_checksum)
 {
@@ -87,8 +87,7 @@ void writeEdgeBasedGraph(const boost::filesystem::path &path,
 
     storage::tar::FileWriter writer(path, storage::tar::FileWriter::GenerateFingerprint);
 
-    writer.WriteElementCount64("/common/number_of_edge_based_nodes", 1);
-    writer.WriteFrom("/common/number_of_edge_based_nodes", number_of_edge_based_nodes);
+    storage::serialization::write(writer, "/common/edge_based_node_list", edge_based_node_list);
     storage::serialization::write(writer, "/common/edge_based_edge_list", edge_based_edge_list);
     writer.WriteElementCount64("/common/connectivity_checksum", 1);
     writer.WriteFrom("/common/connectivity_checksum", connectivity_checksum);
@@ -97,7 +96,7 @@ void writeEdgeBasedGraph(const boost::filesystem::path &path,
 // reads .osrm.ebg file
 template <typename EdgeBasedEdgeVector>
 void readEdgeBasedGraph(const boost::filesystem::path &path,
-                        EdgeID &number_of_edge_based_nodes,
+                        std::vector<extractor::EdgeBasedNodeData> &edge_based_node_list,
                         EdgeBasedEdgeVector &edge_based_edge_list,
                         std::uint32_t &connectivity_checksum)
 {
@@ -105,7 +104,7 @@ void readEdgeBasedGraph(const boost::filesystem::path &path,
 
     storage::tar::FileReader reader(path, storage::tar::FileReader::VerifyFingerprint);
 
-    reader.ReadInto("/common/number_of_edge_based_nodes", number_of_edge_based_nodes);
+    storage::serialization::read(reader, "/common/edge_based_node_list", edge_based_node_list);
     storage::serialization::read(reader, "/common/edge_based_edge_list", edge_based_edge_list);
     reader.ReadInto("/common/connectivity_checksum", connectivity_checksum);
 }

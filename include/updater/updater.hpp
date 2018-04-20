@@ -17,14 +17,14 @@ class Updater
   public:
     Updater(UpdaterConfig config_) : config(std::move(config_)) {}
 
-    using NumNodesAndEdges =
-        std::tuple<EdgeID, std::vector<extractor::EdgeBasedEdge>, std::uint32_t>;
-    NumNodesAndEdges LoadAndUpdateEdgeExpandedGraph() const;
+    using NodesAndEdges =
+        std::tuple<std::vector<extractor::EdgeBasedNodeData>, std::vector<extractor::EdgeBasedEdge>, std::uint32_t>;
+    NodesAndEdges LoadAndUpdateEdgeExpandedGraph() const;
 
-    EdgeID
-    LoadAndUpdateEdgeExpandedGraph(std::vector<extractor::EdgeBasedEdge> &edge_based_edge_list,
-                                   std::vector<EdgeWeight> &node_weights,
-                                   std::uint32_t &connectivity_checksum) const;
+void
+LoadAndUpdateEdgeExpandedGraph(std::vector<extractor::EdgeBasedNodeData> &edge_based_node_list,
+                                        std::vector<extractor::EdgeBasedEdge> &edge_based_edge_list,
+                               std::uint32_t &connectivity_checksum) const;
 
   private:
     UpdaterConfig config;
