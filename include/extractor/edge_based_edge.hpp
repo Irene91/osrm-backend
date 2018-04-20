@@ -14,8 +14,7 @@ struct EdgeBasedNodeData
 {
     EdgeBasedNodeData() : weight(0), duration(0) {}
 
-    EdgeBasedNodeData(const EdgeWeight weight,
-                      const EdgeDuration duration)
+    EdgeBasedNodeData(const EdgeWeight weight, const EdgeDuration duration)
         : weight(weight), duration(duration)
     {
     }
@@ -31,9 +30,7 @@ struct EdgeBasedEdge
     {
         EdgeData() : turn_id(0), forward(false), backward(false) {}
 
-        EdgeData(const NodeID turn_id,
-                 const bool forward,
-                 const bool backward)
+        EdgeData(const NodeID turn_id, const bool forward, const bool backward)
             : turn_id(turn_id), forward(forward), backward(backward)
         {
         }

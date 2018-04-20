@@ -85,7 +85,10 @@ int Partitioner::Run(const PartitionerConfig &config)
     extractor::files::readNBGMapping(config.GetPath(".osrm.cnbg_to_ebg").string(), mapping);
     util::Log() << "Loaded node based graph to edge based graph mapping";
 
-    auto edge_based_graph = LoadEdgeBasedGraph(config.GetPath(".osrm.ebg").string());
+    // TODO: must be moved to edge_based_graph
+    std::vector<extractor::EdgeBasedNodeData> edge_based_nodes_data;
+    auto edge_based_graph =
+        LoadEdgeBasedGraph(config.GetPath(".osrm.ebg").string(), edge_based_nodes_data);
     util::Log() << "Loaded edge based graph for mapping partition ids: "
                 << edge_based_graph.GetNumberOfEdges() << " edges, "
                 << edge_based_graph.GetNumberOfNodes() << " nodes";
@@ -176,7 +179,7 @@ int Partitioner::Run(const PartitionerConfig &config)
     files::writePartition(config.GetPath(".osrm.partition"), mlp);
     files::writeCells(config.GetPath(".osrm.cells"), storage);
     extractor::files::writeEdgeBasedGraph(config.GetPath(".osrm.ebg"),
-                                          edge_based_graph.GetNumberOfNodes(),
+                                          edge_based_nodes_data,
                                           graphToEdges(edge_based_graph),
                                           edge_based_graph.connectivity_checksum);
     TIMER_STOP(writing_mld_data);

@@ -37,11 +37,11 @@ struct DynamicEdgeBasedGraph : util::DynamicGraph<EdgeBasedGraphEdgeData>
     using Base = util::DynamicGraph<EdgeBasedGraphEdgeData>;
     using Base::Base;
 
-    template <class ContainerT>
-    DynamicEdgeBasedGraph(const NodeIterator nodes,
-                          const ContainerT &graph,
+    template <typename NodeContainerT, typename EdgeContainerT>
+    DynamicEdgeBasedGraph(NodeContainerT nodes,
+                          EdgeContainerT edges,
                           std::uint32_t connectivity_checksum)
-        : Base(nodes, graph), connectivity_checksum(connectivity_checksum)
+        : Base(nodes, edges), connectivity_checksum(connectivity_checksum)
     {
     }
 

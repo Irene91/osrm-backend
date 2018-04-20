@@ -180,6 +180,7 @@ class CellCustomizer
         }
 
         // Relax base graph edges if a sub-cell border edge
+        const auto &node_data = graph.GetNodeData(node);
         for (auto edge : graph.GetInternalEdgeRange(level, node))
         {
             const NodeID to = graph.GetTarget(edge);
@@ -188,16 +189,17 @@ class CellCustomizer
                 continue;
             }
 
-            const auto &data = graph.GetEdgeData(edge);
-            if (data.forward &&
+            const auto &edge_data = graph.GetEdgeData(edge);
+            if (edge_data.forward &&
                 (first_level ||
                  partition.GetCell(level - 1, node) != partition.GetCell(level - 1, to)))
             {
-                const EdgeWeight to_weight = weight + data.weight;
-                const EdgeDuration to_duration = duration + data.duration;
+                const EdgeWeight to_weight = weight + node_data.weight /* TODO + turn_penalty */;
+                const EdgeDuration to_duration =
+                    duration + node_data.duration /* TODO + turn_duration */;
                 if (!heap.WasInserted(to))
                 {
-                    heap.Insert(to, to_weight, {false, duration + data.duration});
+                    heap.Insert(to, to_weight, {false, to_duration});
                 }
                 else if (std::tie(to_weight, to_duration) <
                          std::tie(heap.GetKey(to), heap.GetData(to).duration))

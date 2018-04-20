@@ -39,25 +39,20 @@ splitBidirectionalEdges(const std::vector<extractor::EdgeBasedNodeData> &nodes,
         if (nodes[edge.source].weight == INVALID_EDGE_WEIGHT)
             continue;
 
-        directed.emplace_back(edge.source,
-                              edge.target,
-                              edge.data.turn_id,
-                              edge.data.forward,
-                              edge.data.backward);
+        directed.emplace_back(
+            edge.source, edge.target, edge.data.turn_id, edge.data.forward, edge.data.backward);
 
-        directed.emplace_back(edge.target,
-                              edge.source,
-                              edge.data.turn_id,
-                              edge.data.backward,
-                              edge.data.forward);
+        directed.emplace_back(
+            edge.target, edge.source, edge.data.turn_id, edge.data.backward, edge.data.forward);
     }
 
     return directed;
 }
 
 template <typename OutputEdgeT>
-std::vector<OutputEdgeT> prepareEdgesForUsageInGraph(const std::vector<extractor::EdgeBasedNodeData> &nodes,
-                                                     std::vector<extractor::EdgeBasedEdge> edges)
+std::vector<OutputEdgeT>
+prepareEdgesForUsageInGraph(const std::vector<extractor::EdgeBasedNodeData> &nodes,
+                            std::vector<extractor::EdgeBasedEdge> edges)
 {
     // sort into blocks of edges with same source + target
     // the we partition by the forward flag to sort all edges with a forward direction first.
@@ -182,15 +177,17 @@ graphToEdges(const DynamicEdgeBasedGraph &edge_based_graph)
     return edges;
 }
 
-inline DynamicEdgeBasedGraph LoadEdgeBasedGraph(const boost::filesystem::path &path)
+inline DynamicEdgeBasedGraph LoadEdgeBasedGraph(const boost::filesystem::path &path,
+                                                // TODO: must be movedto DynamicEdgeBasedGraph
+                                                std::vector<extractor::EdgeBasedNodeData> &nodes)
 {
-    std::vector<extractor::EdgeBasedNodeData> nodes;
     std::vector<extractor::EdgeBasedEdge> edges;
     std::uint32_t checksum;
     extractor::files::readEdgeBasedGraph(path, nodes, edges, checksum);
 
     auto directed = splitBidirectionalEdges(nodes, edges);
-    auto tidied = prepareEdgesForUsageInGraph<DynamicEdgeBasedGraphEdge>(nodes, std::move(directed));
+    auto tidied =
+        prepareEdgesForUsageInGraph<DynamicEdgeBasedGraphEdge>(nodes, std::move(directed));
 
     return DynamicEdgeBasedGraph(nodes.size(), std::move(tidied), checksum);
 }

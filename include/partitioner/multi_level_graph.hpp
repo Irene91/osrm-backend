@@ -19,7 +19,8 @@ namespace osrm
 
 namespace partitioner
 {
-template <typename NodeDataT, typename EdgeDataT, storage::Ownership Ownership> class MultiLevelGraph;
+template <typename NodeDataT, typename EdgeDataT, storage::Ownership Ownership>
+class MultiLevelGraph;
 
 namespace serialization
 {
@@ -60,17 +61,17 @@ class MultiLevelGraph : public util::StaticGraph<NodeDataT, EdgeDataT, Ownership
     {
     }
 
-    template <typename ContainerT>
+    template <typename NodeContainerT, typename EdgeContainerT>
     MultiLevelGraph(const MultiLevelPartition &mlp,
-                    const std::uint32_t num_nodes,
-                    const ContainerT &edges)
+                    const NodeContainerT &nodes,
+                    const EdgeContainerT &edges)
     {
         auto highest_border_level = GetHighestBorderLevel(mlp, edges);
         auto permutation = SortEdgesByHighestLevel(highest_border_level, edges);
         auto sorted_edges_begin =
             boost::make_permutation_iterator(edges.begin(), permutation.begin());
         auto sorted_edges_end = boost::make_permutation_iterator(edges.begin(), permutation.end());
-        SuperT::InitializeFromSortedEdgeRange(num_nodes, sorted_edges_begin, sorted_edges_end);
+        SuperT::InitializeFromSortedEdgeRange(nodes, sorted_edges_begin, sorted_edges_end);
 
         // if the node ordering is sorting the border nodes first,
         // the id of the maximum border node will be rather low
@@ -85,7 +86,9 @@ class MultiLevelGraph : public util::StaticGraph<NodeDataT, EdgeDataT, Ownership
                              std::max(edges[edge_index].source, edges[edge_index].target));
             }
         }
-        BOOST_ASSERT(max_border_node_id < num_nodes);
+
+        // TODO: nodes is type-dependent atm
+        // BOOST_ASSERT(max_border_node_id < nodes.size());
 
         auto edge_and_level_range = boost::combine(edges, highest_border_level);
         auto sorted_edge_and_level_begin =
@@ -209,14 +212,14 @@ class MultiLevelGraph : public util::StaticGraph<NodeDataT, EdgeDataT, Ownership
         node_to_edge_offset.push_back(mlp.GetNumberOfLevels());
     }
 
-    friend void
-    serialization::read<NodeDataT, EdgeDataT, Ownership>(storage::tar::FileReader &reader,
-                                              const std::string &name,
-                                              MultiLevelGraph<NodeDataT, EdgeDataT, Ownership> &graph);
-    friend void
-    serialization::write<NodeDataT, EdgeDataT, Ownership>(storage::tar::FileWriter &writer,
-                                               const std::string &name,
-                                               const MultiLevelGraph<NodeDataT, EdgeDataT, Ownership> &graph);
+    friend void serialization::read<NodeDataT, EdgeDataT, Ownership>(
+        storage::tar::FileReader &reader,
+        const std::string &name,
+        MultiLevelGraph<NodeDataT, EdgeDataT, Ownership> &graph);
+    friend void serialization::write<NodeDataT, EdgeDataT, Ownership>(
+        storage::tar::FileWriter &writer,
+        const std::string &name,
+        const MultiLevelGraph<NodeDataT, EdgeDataT, Ownership> &graph);
 
     Vector<EdgeOffset> node_to_edge_offset;
     std::uint32_t connectivity_checksum;

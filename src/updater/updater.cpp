@@ -103,45 +103,46 @@ inline SegmentDuration convertToDuration(double speed_in_kmh, double distance_in
     return segment_duration;
 }
 
-#if !defined(NDEBUG)
-void checkWeightsConsistency(
-    const UpdaterConfig &config,
-    const std::vector<osrm::extractor::EdgeBasedEdge> &edge_based_edge_list)
-{
-    extractor::SegmentDataContainer segment_data;
-    extractor::files::readSegmentData(config.GetPath(".osrm.geometry"), segment_data);
+// TODO: how consistency check will look like?
+// #if !defined(NDEBUG)
+// void checkWeightsConsistency(
+//     const UpdaterConfig &config,
+//     const std::vector<osrm::extractor::EdgeBasedEdge> &edge_based_edge_list)
+// {
+//     extractor::SegmentDataContainer segment_data;
+//     extractor::files::readSegmentData(config.GetPath(".osrm.geometry"), segment_data);
 
-    extractor::EdgeBasedNodeDataContainer node_data;
-    extractor::files::readNodeData(config.GetPath(".osrm.ebg_nodes"), node_data);
+//     extractor::EdgeBasedNodeDataContainer node_data;
+//     extractor::files::readNodeData(config.GetPath(".osrm.ebg_nodes"), node_data);
 
-    for (auto &edge : edge_based_edge_list)
-    {
-        const auto node_id = edge.source;
-        const auto geometry_id = node_data.GetGeometryID(node_id);
+//     for (auto &edge : edge_based_edge_list)
+//     {
+//         const auto node_id = edge.source;
+//         const auto geometry_id = node_data.GetGeometryID(node_id);
 
-        if (geometry_id.forward)
-        {
-            auto range = segment_data.GetForwardWeights(geometry_id.id);
-            EdgeWeight weight = std::accumulate(range.begin(), range.end(), EdgeWeight{0});
-            if (weight > edge.data.weight)
-            {
-                util::Log(logWARNING) << geometry_id.id << " vs " << edge.data.turn_id << ":"
-                                      << weight << " > " << edge.data.weight;
-            }
-        }
-        else
-        {
-            auto range = segment_data.GetReverseWeights(geometry_id.id);
-            EdgeWeight weight = std::accumulate(range.begin(), range.end(), EdgeWeight{0});
-            if (weight > edge.data.weight)
-            {
-                util::Log(logWARNING) << geometry_id.id << " vs " << edge.data.turn_id << ":"
-                                      << weight << " > " << edge.data.weight;
-            }
-        }
-    }
-}
-#endif
+//         if (geometry_id.forward)
+//         {
+//             auto range = segment_data.GetForwardWeights(geometry_id.id);
+//             EdgeWeight weight = std::accumulate(range.begin(), range.end(), EdgeWeight{0});
+//             if (weight > edge.data.weight)
+//             {
+//                 util::Log(logWARNING) << geometry_id.id << " vs " << edge.data.turn_id << ":"
+//                                       << weight << " > " << edge.data.weight;
+//             }
+//         }
+//         else
+//         {
+//             auto range = segment_data.GetReverseWeights(geometry_id.id);
+//             EdgeWeight weight = std::accumulate(range.begin(), range.end(), EdgeWeight{0});
+//             if (weight > edge.data.weight)
+//             {
+//                 util::Log(logWARNING) << geometry_id.id << " vs " << edge.data.turn_id << ":"
+//                                       << weight << " > " << edge.data.weight;
+//             }
+//         }
+//     }
+// }
+// #endif
 
 static const constexpr std::size_t LUA_SOURCE = 0;
 
@@ -532,15 +533,15 @@ Updater::NodesAndEdges Updater::LoadAndUpdateEdgeExpandedGraph() const
     std::vector<extractor::EdgeBasedEdge> edge_based_edge_list;
     std::uint32_t connectivity_checksum;
     Updater::LoadAndUpdateEdgeExpandedGraph(
-       edge_based_node_list, edge_based_edge_list, connectivity_checksum);
+        edge_based_node_list, edge_based_edge_list, connectivity_checksum);
     return std::make_tuple(
-                           std::move(edge_based_node_list), std::move(edge_based_edge_list), connectivity_checksum);
+        std::move(edge_based_node_list), std::move(edge_based_edge_list), connectivity_checksum);
 }
 
-void
-Updater::LoadAndUpdateEdgeExpandedGraph(std::vector<extractor::EdgeBasedNodeData> &edge_based_node_list,
-                                        std::vector<extractor::EdgeBasedEdge> &edge_based_edge_list,
-                                        std::uint32_t &connectivity_checksum) const
+void Updater::LoadAndUpdateEdgeExpandedGraph(
+    std::vector<extractor::EdgeBasedNodeData> &edge_based_node_list,
+    std::vector<extractor::EdgeBasedEdge> &edge_based_edge_list,
+    std::uint32_t &connectivity_checksum) const
 {
     TIMER_START(load_edges);
 
@@ -786,13 +787,14 @@ Updater::LoadAndUpdateEdgeExpandedGraph(std::vector<extractor::EdgeBasedNodeData
             });
     }
 
-#if !defined(NDEBUG)
-    if (config.turn_penalty_lookup_paths.empty())
-    { // don't check weights consistency with turn updates that can break assertion
-        // condition with turn weight penalties negative updates
-        checkWeightsConsistency(config, edge_based_edge_list);
-    }
-#endif
+    // TODO:
+    // #if !defined(NDEBUG)
+    //     if (config.turn_penalty_lookup_paths.empty())
+    //     { // don't check weights consistency with turn updates that can break assertion
+    //         // condition with turn weight penalties negative updates
+    //         checkWeightsConsistency(config, edge_based_edge_list);
+    //     }
+    // #endif
 
     saveDatasourcesNames(config);
 

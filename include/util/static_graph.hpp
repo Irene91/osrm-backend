@@ -176,6 +176,18 @@ class StaticGraph
         return NodeIterator(edge_array[e].target);
     }
 
+    template <typename = std::enable_if<!std::is_void<NodeDataT>::value>>
+    auto &GetNodeData(const NodeIterator n)
+    {
+        return node_array[n].data;
+    }
+
+    template <typename = std::enable_if<!std::is_void<NodeDataT>::value>>
+    const auto &GetNodeData(const NodeIterator n) const
+    {
+        return node_array[n].data;
+    }
+
     auto &GetEdgeData(const EdgeIterator e) { return edge_array[e].data; }
 
     const auto &GetEdgeData(const EdgeIterator e) const { return edge_array[e].data; }
@@ -297,20 +309,34 @@ class StaticGraph
         const StaticGraph<NodeDataT, EdgeDataT, Ownership> &graph);
 
   protected:
+    template <typename T, typename IterT>
+    void InitializeFromSortedEdgeRange(const std::vector<T> &nodes, IterT begin, IterT end)
+    {
+        InitializeFromSortedEdgeRange(nodes.size(), begin, end);
+
+        // Copy nodes data
+        for (auto node : util::irange(0u, nodes.size()))
+        {
+            node_array[node].data = nodes[node]; // TODO: hack to avoid premature templatization
+        }
+    }
+
     template <typename IterT>
     void InitializeFromSortedEdgeRange(const std::uint32_t nodes, IterT begin, IterT end)
     {
         number_of_nodes = nodes;
         number_of_edges = static_cast<EdgeIterator>(std::distance(begin, end));
         node_array.reserve(number_of_nodes + 1);
-        node_array.push_back(NodeArrayEntry{0u});
+        node_array.push_back(NodeArrayEntry{});
+        node_array.back().first_edge = 0; // TODO: hack to avoid premature templatization
         auto iter = begin;
         for (auto node : util::irange(0u, nodes))
         {
             iter =
                 std::find_if(iter, end, [node](const auto &edge) { return edge.source != node; });
             unsigned offset = std::distance(begin, iter);
-            node_array.push_back(NodeArrayEntry{offset});
+            node_array.push_back(NodeArrayEntry{});
+            node_array.back().first_edge = offset; // TODO: hack to avoid premature templatization
         }
         BOOST_ASSERT_MSG(
             iter == end,

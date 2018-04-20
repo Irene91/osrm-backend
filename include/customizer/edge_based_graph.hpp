@@ -16,21 +16,26 @@ namespace osrm
 namespace customizer
 {
 
-using EdgeBasedGraphNodeData = void;
+using EdgeBasedGraphNodeData = extractor::EdgeBasedNodeData;
 using EdgeBasedGraphEdgeData = partitioner::EdgeBasedGraphEdgeData;
 
-struct MultiLevelEdgeBasedGraph
-    : public partitioner::MultiLevelGraph<EdgeBasedGraphNodeData, EdgeBasedGraphEdgeData, storage::Ownership::Container>
+struct MultiLevelEdgeBasedGraph : public partitioner::MultiLevelGraph<EdgeBasedGraphNodeData,
+                                                                      EdgeBasedGraphEdgeData,
+                                                                      storage::Ownership::Container>
 {
-    using Base =
-        partitioner::MultiLevelGraph<EdgeBasedGraphNodeData, EdgeBasedGraphEdgeData, storage::Ownership::Container>;
+    using Base = partitioner::MultiLevelGraph<EdgeBasedGraphNodeData,
+                                              EdgeBasedGraphEdgeData,
+                                              storage::Ownership::Container>;
     using Base::Base;
 };
 
-struct MultiLevelEdgeBasedGraphView
-    : public partitioner::MultiLevelGraph<EdgeBasedGraphNodeData, EdgeBasedGraphEdgeData, storage::Ownership::View>
+struct MultiLevelEdgeBasedGraphView : public partitioner::MultiLevelGraph<EdgeBasedGraphNodeData,
+                                                                          EdgeBasedGraphEdgeData,
+                                                                          storage::Ownership::View>
 {
-    using Base = partitioner::MultiLevelGraph<EdgeBasedGraphNodeData, EdgeBasedGraphEdgeData, storage::Ownership::View>;
+    using Base = partitioner::MultiLevelGraph<EdgeBasedGraphNodeData,
+                                              EdgeBasedGraphEdgeData,
+                                              storage::Ownership::View>;
     using Base::Base;
 };
 

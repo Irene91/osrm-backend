@@ -83,10 +83,12 @@ auto LoadAndUpdateEdgeExpandedGraph(const CustomizationConfig &config,
     std::tie(edge_based_node_list, edge_based_edge_list, connectivity_checksum) =
         updater.LoadAndUpdateEdgeExpandedGraph();
 
-    auto directed = partitioner::splitBidirectionalEdges(edge_based_node_list, edge_based_edge_list);
-    auto tidied =
-        partitioner::prepareEdgesForUsageInGraph<StaticEdgeBasedGraphEdge>(edge_based_node_list, std::move(directed));
-    auto edge_based_graph = customizer::MultiLevelEdgeBasedGraph(mlp, num_nodes, std::move(tidied));
+    auto directed =
+        partitioner::splitBidirectionalEdges(edge_based_node_list, edge_based_edge_list);
+    auto tidied = partitioner::prepareEdgesForUsageInGraph<StaticEdgeBasedGraphEdge>(
+        edge_based_node_list, std::move(directed));
+    auto edge_based_graph =
+        customizer::MultiLevelEdgeBasedGraph(mlp, edge_based_node_list.size(), std::move(tidied));
 
     return edge_based_graph;
 }
